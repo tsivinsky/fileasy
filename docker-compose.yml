@@ -11,3 +11,33 @@ services:
       - 5432:5432
     volumes:
       - ./db-data:/var/lib/postgresql/data
+    network_mode: host
+
+  app:
+    restart: unless-stopped
+    ports:
+      - 5000:5000
+    container_name: fileasy-app
+    build: .
+    env_file:
+      - .env
+    depends_on:
+      - db
+    network_mode: host
+
+  nginx:
+    image: nginx:latest
+    ports:
+      - 80:80
+      - 443:443
+    restart: always
+    volumes:
+      - ./nginx/conf/:/etc/nginx/conf.d/:ro
+      - ./certbot/www:/var/www/certbot/:ro
+      - ./certbot/conf/:/etc/nginx/ssl/:ro
+
+  certbot:
+    image: certbot/certbot:latest
+    volumes:
+      - ./certbot/www/:/var/www/certbot/:rw
+      - ./certbot/conf/:/etc/letsencrypt/:rw
