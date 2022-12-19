@@ -1,0 +1,6 @@
+tmp
+db-data
+static/*
+!static/.gitkeep
+
+.env
