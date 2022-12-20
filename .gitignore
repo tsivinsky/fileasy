@@ -2,5 +2,6 @@ tmp
 db-data
 static/*
 !static/.gitkeep
+certbot/*
 
 .env
