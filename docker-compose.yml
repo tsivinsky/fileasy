@@ -11,7 +11,6 @@ services:
       - 5432:5432
     volumes:
       - ./db-data:/var/lib/postgresql/data
-    network_mode: host
 
   app:
     restart: unless-stopped
@@ -23,21 +22,25 @@ services:
       - .env
     depends_on:
       - db
-    network_mode: host
 
   nginx:
     image: nginx:latest
     ports:
       - 80:80
       - 443:443
+    depends_on:
+      - app
     restart: always
     volumes:
       - ./nginx/conf/:/etc/nginx/conf.d/:ro
       - ./certbot/www:/var/www/certbot/:ro
-      - ./certbot/conf/:/etc/nginx/ssl/:ro
+      - ./certbot/conf/:/etc/letsencrypt/:ro
 
   certbot:
     image: certbot/certbot:latest
+    depends_on:
+      - nginx
     volumes:
       - ./certbot/www/:/var/www/certbot/:rw
       - ./certbot/conf/:/etc/letsencrypt/:rw
+    command: certonly --webroot --webroot-path=/var/www/certbot --agree-tos --no-eff-email -d fileasy.ru
