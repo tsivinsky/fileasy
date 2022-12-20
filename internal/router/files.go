@@ -2,6 +2,7 @@ package router
 
 import (
 	"fmt"
+	"os"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/tsivinsky/fileasy/internal/db"
@@ -18,7 +19,7 @@ func HandleListAllFiles(c *fiber.Ctx) error {
 
 	var result []ResultFile
 	for _, file := range files {
-		fileUrl := fmt.Sprintf("http://localhost:5000/%s", file.Name)
+		fileUrl := fmt.Sprintf("%s/%s", os.Getenv("APP_URL"), file.Name)
 
 		result = append(result, ResultFile{
 			Id:  file.ID,
@@ -35,7 +36,7 @@ func HandleFindFileByName(c *fiber.Ctx) error {
 	var file *db.File
 	db.Db.Find(&file, "name = ?", fileName)
 
-	fileUrl := fmt.Sprintf("http://localhost:5000/%s", file.Name)
+	fileUrl := fmt.Sprintf("%s/%s", os.Getenv("APP_URL"), file.Name)
 
 	result := &ResultFile{
 		Id:  file.ID,
