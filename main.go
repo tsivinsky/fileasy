@@ -24,6 +24,9 @@ func main() {
 
 	app.Static("/", "./static", fiber.Static{})
 
+	app.Get("/api/auth/github", router.HandleGitHubLogin)
+	app.Get("/api/auth/github/callback", router.HandleGitHubCallback)
+
 	app.Get("/api/files", router.HandleListAllFiles)
 	app.Get("/api/:name", router.HandleFindFileByName)
 
