@@ -26,7 +26,7 @@ func Connect() error {
 		return err
 	}
 
-	err = Db.AutoMigrate(&File{})
+	err = Db.AutoMigrate(&File{}, &User{})
 
 	return err
 }
