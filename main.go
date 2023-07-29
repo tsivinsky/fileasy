@@ -7,12 +7,20 @@ import (
 	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/gofiber/fiber/v2/middleware/recover"
 	"github.com/joho/godotenv"
+	"github.com/tsivinsky/fileasy/internal/app"
 	"github.com/tsivinsky/fileasy/internal/db"
 	"github.com/tsivinsky/fileasy/internal/middleware"
 	"github.com/tsivinsky/fileasy/internal/router"
 )
 
 func ErrorHandler(c *fiber.Ctx, err error) error {
+	if e, ok := err.(*app.ApiError); ok {
+		return c.Status(e.Status).JSON(fiber.Map{
+			"error":  e.Message,
+			"detail": e.Err,
+		})
+	}
+
 	return c.Status(500).JSON(fiber.Map{
 		"error": err.Error(),
 	})
