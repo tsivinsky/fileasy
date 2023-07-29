@@ -9,6 +9,12 @@ import (
 	"github.com/tsivinsky/fileasy/internal/router"
 )
 
+func ErrorHandler(c *fiber.Ctx, err error) error {
+	return c.Status(500).JSON(fiber.Map{
+		"error": err.Error(),
+	})
+}
+
 func main() {
 	err := godotenv.Load()
 	if err != nil {
@@ -20,7 +26,9 @@ func main() {
 		log.Fatal(err)
 	}
 
-	app := fiber.New()
+	app := fiber.New(fiber.Config{
+		ErrorHandler: ErrorHandler,
+	})
 
 	app.Static("/", "./static", fiber.Static{})
 
