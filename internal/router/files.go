@@ -1,8 +1,10 @@
 package router
 
 import (
+	"errors"
 	"fmt"
 	"os"
+	"strconv"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/tsivinsky/fileasy/internal/db"
@@ -81,4 +83,36 @@ func HandleUploadFile(c *fiber.Ctx) error {
 	}
 
 	return c.JSON(createdFile)
+}
+
+func HandleDeleteFile(c *fiber.Ctx) error {
+	fileIdParam := c.Params("id")
+	fileId, err := strconv.Atoi(fileIdParam)
+	if err != nil {
+		return errors.New("Invalid file id param")
+	}
+
+	userId, err := GetUserIdFromRequest(c)
+	if err != nil {
+		return errors.New("Not authorized")
+	}
+
+	var file db.File
+	if tx := db.Db.First(&file, "id = ? AND user_id = ?", fileId, userId); tx.Error != nil {
+		return tx.Error
+	}
+
+	if tx := db.Db.Delete(&file); tx.Error != nil {
+		return tx.Error
+	}
+
+	fp := fmt.Sprintf("./static/%s", file.Name)
+	err = os.Remove(fp)
+	if err != nil {
+		return err
+	}
+
+	return c.JSON(fiber.Map{
+		"ok": true,
+	})
 }
