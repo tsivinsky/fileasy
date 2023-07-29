@@ -6,6 +6,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/joho/godotenv"
 	"github.com/tsivinsky/fileasy/internal/db"
+	"github.com/tsivinsky/fileasy/internal/middleware"
 	"github.com/tsivinsky/fileasy/internal/router"
 )
 
@@ -35,10 +36,10 @@ func main() {
 	app.Get("/api/auth/github", router.HandleGitHubLogin)
 	app.Get("/api/auth/github/callback", router.HandleGitHubCallback)
 
-	app.Get("/api/files", router.HandleListAllFiles)
-	app.Get("/api/:name", router.HandleFindFileByName)
+	app.Get("/api/files", middleware.VerifyJWTToken, router.HandleListAllFiles)
+	app.Get("/api/:name", middleware.VerifyJWTToken, router.HandleFindFileByName)
 
-	app.Post("/api/upload", router.HandleUploadFile)
+	app.Post("/api/upload", middleware.VerifyJWTToken, router.HandleUploadFile)
 
 	log.Fatal(app.Listen(":5000"))
 }
