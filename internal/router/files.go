@@ -14,20 +14,17 @@ type ResultFile struct {
 }
 
 func HandleListAllFiles(c *fiber.Ctx) error {
-	var files []*db.File
-	db.Db.Find(&files)
-
-	var result []ResultFile
-	for _, file := range files {
-		fileUrl := fmt.Sprintf("%s/%s", os.Getenv("APP_URL"), file.Name)
-
-		result = append(result, ResultFile{
-			Id:  file.ID,
-			Url: fileUrl,
-		})
+	userId, err := GetUserIdFromRequest(c)
+	if err != nil {
+		return err
 	}
 
-	return c.JSON(result)
+	var files []*db.File
+	if tx := db.Db.Preload("User").Find(&files, "user_id = ?", userId); tx.Error != nil {
+		return tx.Error
+	}
+
+	return c.JSON(files)
 }
 
 func HandleFindFileByName(c *fiber.Ctx) error {
@@ -49,6 +46,11 @@ func HandleFindFileByName(c *fiber.Ctx) error {
 func HandleUploadFile(c *fiber.Ctx) error {
 	var err error
 
+	userId, err := GetUserIdFromRequest(c)
+	if err != nil {
+		return err
+	}
+
 	file, err := c.FormFile("file")
 	if err != nil {
 		return err
@@ -62,7 +64,8 @@ func HandleUploadFile(c *fiber.Ctx) error {
 	}
 
 	newFile := db.File{
-		Name: fileName,
+		Name:   fileName,
+		UserID: userId,
 	}
 
 	tx := db.Db.Create(&newFile)
@@ -70,5 +73,12 @@ func HandleUploadFile(c *fiber.Ctx) error {
 		return tx.Error
 	}
 
-	return c.JSON(newFile)
+	// TODO: figure out how preloading works and preload user data in Create query above to avoid sending 2nd query
+
+	var createdFile db.File
+	if tx := db.Db.Preload("User").First(&createdFile, "id = ?", newFile.ID); tx.Error != nil {
+		return tx.Error
+	}
+
+	return c.JSON(createdFile)
 }

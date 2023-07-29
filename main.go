@@ -6,8 +6,15 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/joho/godotenv"
 	"github.com/tsivinsky/fileasy/internal/db"
+	"github.com/tsivinsky/fileasy/internal/middleware"
 	"github.com/tsivinsky/fileasy/internal/router"
 )
+
+func ErrorHandler(c *fiber.Ctx, err error) error {
+	return c.Status(500).JSON(fiber.Map{
+		"error": err.Error(),
+	})
+}
 
 func main() {
 	err := godotenv.Load()
@@ -20,14 +27,20 @@ func main() {
 		log.Fatal(err)
 	}
 
-	app := fiber.New()
+	app := fiber.New(fiber.Config{
+		ErrorHandler: ErrorHandler,
+	})
 
 	app.Static("/", "./static", fiber.Static{})
 
-	app.Get("/api/files", router.HandleListAllFiles)
-	app.Get("/api/:name", router.HandleFindFileByName)
+	app.Get("/api/auth/github", router.HandleGitHubLogin)
+	app.Get("/api/auth/github/callback", router.HandleGitHubCallback)
+	app.Post("/api/auth/refresh", router.HandleGetNewAccessToken)
 
-	app.Post("/api/upload", router.HandleUploadFile)
+	app.Get("/api/files", middleware.VerifyJWTToken, router.HandleListAllFiles)
+	app.Get("/api/:name", middleware.VerifyJWTToken, router.HandleFindFileByName)
+
+	app.Post("/api/upload", middleware.VerifyJWTToken, router.HandleUploadFile)
 
 	log.Fatal(app.Listen(":5000"))
 }

@@ -1,9 +1,9 @@
 package db
 
-import "gorm.io/gorm"
-
 type File struct {
-	gorm.Model
+	Model
 
-	Name string `json:"name"`
+	Name   string `json:"name" gorm:"name,unique"`
+	User   User   `json:"user" gorm:"user"`
+	UserID uint   `json:"userId" gorm:"user_id"`
 }
