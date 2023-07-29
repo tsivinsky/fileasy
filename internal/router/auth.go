@@ -8,7 +8,13 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/tsivinsky/fileasy/internal/db"
 	"github.com/tsivinsky/fileasy/internal/github"
+	"github.com/tsivinsky/fileasy/internal/jwt"
 )
+
+type AuthResponse struct {
+	AccessToken  string `json:"accessToken"`
+	RefreshToken string `json:"refreshToken"`
+}
 
 const SessionLifeTime = time.Second * 60 * 60 * 24 * 30
 
@@ -43,7 +49,13 @@ func HandleGitHubCallback(c *fiber.Ctx) error {
 		db.Db.Create(&user)
 	}
 
-	// TODO: decide what to use for authentication. jwt or maybe storing sessions in db
+	accessToken, refreshToken, err := jwt.GenerateBothTokens(user.ID)
+	if err != nil {
+		return err
+	}
 
-	return c.Status(200).JSON(user)
+	return c.Status(200).JSON(AuthResponse{
+		AccessToken:  accessToken,
+		RefreshToken: refreshToken,
+	})
 }
