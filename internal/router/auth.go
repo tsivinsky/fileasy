@@ -1,6 +1,7 @@
 package router
 
 import (
+	"errors"
 	"fmt"
 	"os"
 	"time"
@@ -55,6 +56,37 @@ func HandleGitHubCallback(c *fiber.Ctx) error {
 	}
 
 	return c.Status(200).JSON(AuthResponse{
+		AccessToken:  accessToken,
+		RefreshToken: refreshToken,
+	})
+}
+
+type GetNewAccessTokenBody struct {
+	RefreshToken string `json:"refreshToken"`
+}
+
+func HandleGetNewAccessToken(c *fiber.Ctx) error {
+	var body GetNewAccessTokenBody
+
+	if err := c.BodyParser(&body); err != nil {
+		return err
+	}
+
+	if body.RefreshToken == "" {
+		return errors.New("No refreshToken provided in body")
+	}
+
+	userId, err := jwt.ValidateRefreshToken(body.RefreshToken)
+	if err != nil {
+		return err
+	}
+
+	accessToken, refreshToken, err := jwt.GenerateBothTokens(userId)
+	if err != nil {
+		return err
+	}
+
+	return c.JSON(AuthResponse{
 		AccessToken:  accessToken,
 		RefreshToken: refreshToken,
 	})
