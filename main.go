@@ -35,6 +35,7 @@ func main() {
 
 	app.Get("/api/auth/github", router.HandleGitHubLogin)
 	app.Get("/api/auth/github/callback", router.HandleGitHubCallback)
+	app.Post("/api/auth/refresh", router.HandleGetNewAccessToken)
 
 	app.Get("/api/files", middleware.VerifyJWTToken, router.HandleListAllFiles)
 	app.Get("/api/:name", middleware.VerifyJWTToken, router.HandleFindFileByName)
