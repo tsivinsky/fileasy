@@ -5,4 +5,5 @@ type User struct {
 
 	Email    *string `json:"email" gorm:"email"`
 	Username string  `json:"username" gorm:"username,unique"`
+	Files    []File  `json:"files" gorm:"files"`
 }
