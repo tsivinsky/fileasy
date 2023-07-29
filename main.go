@@ -46,6 +46,7 @@ func main() {
 
 	app.Get("/api/files", middleware.VerifyJWTToken, router.HandleListAllFiles)
 	app.Get("/api/:name", middleware.VerifyJWTToken, router.HandleFindFileByName)
+	app.Delete("/api/files/:id", middleware.VerifyJWTToken, router.HandleDeleteFile)
 
 	app.Post("/api/upload", middleware.VerifyJWTToken, router.HandleUploadFile)
 
