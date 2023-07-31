@@ -55,10 +55,7 @@ func HandleGitHubCallback(c *fiber.Ctx) error {
 		return err
 	}
 
-	webAppUrl := os.Getenv("WEB_APP_URL")
-	redirectUrl := fmt.Sprintf("%s/login/callback?accessToken=%s&refreshToken=%s", webAppUrl, accessToken, refreshToken)
-
-	return c.Redirect(redirectUrl)
+	return RedirectWithTokens(c, accessToken, refreshToken)
 }
 
 type GetNewAccessTokenBody struct {

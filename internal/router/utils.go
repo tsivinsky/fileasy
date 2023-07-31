@@ -1,6 +1,8 @@
 package router
 
 import (
+	"fmt"
+	"os"
 	"strings"
 
 	"github.com/gofiber/fiber/v2"
@@ -18,4 +20,11 @@ func GetUserIdFromRequest(c *fiber.Ctx) (uint, error) {
 	}
 
 	return userId, nil
+}
+
+func RedirectWithTokens(c *fiber.Ctx, accessToken, refreshToken string) error {
+	webAppUrl := os.Getenv("WEB_APP_URL")
+	redirectUrl := fmt.Sprintf("%s/login/callback?accessToken=%s&refreshToken=%s", webAppUrl, accessToken, refreshToken)
+
+	return c.Redirect(redirectUrl)
 }
