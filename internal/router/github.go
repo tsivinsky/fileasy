@@ -45,6 +45,7 @@ func HandleGitHubCallback(c *fiber.Ctx) error {
 			user.Email = ghUser.Email
 		}
 
+		user.Avatar = ghUser.Avatar
 		user.GithubId = &ghUser.ID
 		db.Db.Save(&user)
 	}
