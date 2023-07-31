@@ -7,4 +7,5 @@ type User struct {
 	Username string  `json:"username" gorm:"username,unique"`
 	Files    []File  `json:"files" gorm:"files"`
 	YandexId *int    `json:"-" gorm:"yandex_id"`
+	GithubId *int    `json:"-"`
 }

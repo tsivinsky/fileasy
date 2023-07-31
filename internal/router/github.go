@@ -35,10 +35,18 @@ func HandleGitHubCallback(c *fiber.Ctx) error {
 	}
 
 	var user *db.User
-	if tx := db.Db.Where("username = ?", ghUser.Login).First(&user); tx.Error != nil {
+	if tx := db.Db.Where("github_id = ? OR email = ?", ghUser.ID, ghUser.Email).First(&user); tx.Error != nil {
 		user.Username = ghUser.Login
 		user.Email = ghUser.Email
+		user.GithubId = &ghUser.ID
 		db.Db.Create(&user)
+	} else {
+		if user.Email == nil {
+			user.Email = ghUser.Email
+		}
+
+		user.GithubId = &ghUser.ID
+		db.Db.Save(&user)
 	}
 
 	accessToken, refreshToken, err := jwt.GenerateBothTokens(user.ID)
