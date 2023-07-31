@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"path"
 	"strconv"
 
 	"github.com/gofiber/fiber/v2"
@@ -59,6 +60,12 @@ func HandleUploadFile(c *fiber.Ctx) error {
 	}
 
 	fileName := file.Filename
+	fileExt := path.Ext(fileName)
+
+	formFileName := c.FormValue("name")
+	if formFileName != "" {
+		fileName = fmt.Sprintf("%s%s", formFileName, fileExt)
+	}
 
 	err = c.SaveFile(file, fmt.Sprintf("./static/%s", fileName))
 	if err != nil {
