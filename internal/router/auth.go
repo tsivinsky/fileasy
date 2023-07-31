@@ -4,7 +4,6 @@ import (
 	"errors"
 	"fmt"
 	"os"
-	"time"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/tsivinsky/fileasy/internal/db"
@@ -16,8 +15,6 @@ type AuthResponse struct {
 	AccessToken  string `json:"accessToken"`
 	RefreshToken string `json:"refreshToken"`
 }
-
-const SessionLifeTime = time.Second * 60 * 60 * 24 * 30
 
 func HandleGitHubLogin(c *fiber.Ctx) error {
 	clientId := os.Getenv("GITHUB_CLIENT_ID")
