@@ -11,6 +11,8 @@ import (
 	"github.com/tsivinsky/fileasy/internal/yandex"
 )
 
+const YandexAvatarSize = "islands-middle"
+
 func HandleYandexLogin(c *fiber.Ctx) error {
 	yandexClientId := os.Getenv("YANDEX_CLIENT_ID")
 
@@ -47,6 +49,9 @@ func HandleYandexCallback(c *fiber.Ctx) error {
 		if user.Email == nil {
 			user.Email = &yandexUser.Emails[0]
 		}
+
+		avatarUrl := fmt.Sprintf("https://avatars.yandex.net/get-yapic/%s/%s", yandexUser.DefaultAvatarId, YandexAvatarSize)
+		user.Avatar = &avatarUrl
 
 		user.YandexId = &yandexId
 		db.Db.Save(&user)
