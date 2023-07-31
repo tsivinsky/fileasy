@@ -13,7 +13,6 @@ import (
 
 func HandleYandexLogin(c *fiber.Ctx) error {
 	yandexClientId := os.Getenv("YANDEX_CLIENT_ID")
-	fmt.Printf("yandexClientId: %v\n", yandexClientId)
 
 	u := fmt.Sprintf("https://oauth.yandex.ru/authorize?response_type=code&client_id=%s", yandexClientId)
 
