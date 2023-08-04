@@ -6,6 +6,7 @@ import (
 	"strconv"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/tsivinsky/fileasy/internal/app"
 	"github.com/tsivinsky/fileasy/internal/db"
 	"github.com/tsivinsky/fileasy/internal/jwt"
 	"github.com/tsivinsky/fileasy/internal/yandex"
@@ -26,17 +27,17 @@ func HandleYandexCallback(c *fiber.Ctx) error {
 
 	accessToken, err := yandex.GetOauthToken(code)
 	if err != nil {
-		return err
+		return app.NewApiError(500, "couldn't get yandex oauth token", &err)
 	}
 
 	yandexUser, err := yandex.GetYandexUser(accessToken)
 	if err != nil {
-		return err
+		return app.NewApiError(500, "couldn't get yandex user", &err)
 	}
 
 	yandexId, err := strconv.Atoi(yandexUser.ID)
 	if err != nil {
-		return err
+		return app.NewApiError(500, "couldn't convert yandex userId from string to int", &err)
 	}
 
 	var user db.User
@@ -59,7 +60,7 @@ func HandleYandexCallback(c *fiber.Ctx) error {
 
 	accessToken, refreshToken, err := jwt.GenerateBothTokens(user.ID)
 	if err != nil {
-		return err
+		return app.NewApiError(500, "couldn't generate jwt tokens", &err)
 	}
 
 	return RedirectWithTokens(c, accessToken, refreshToken)

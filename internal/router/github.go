@@ -5,6 +5,7 @@ import (
 	"os"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/tsivinsky/fileasy/internal/app"
 	"github.com/tsivinsky/fileasy/internal/db"
 	"github.com/tsivinsky/fileasy/internal/github"
 	"github.com/tsivinsky/fileasy/internal/jwt"
@@ -26,12 +27,12 @@ func HandleGitHubCallback(c *fiber.Ctx) error {
 
 	accessToken, err := github.GetAccessToken(code, clientId, clientSecret)
 	if err != nil {
-		return err
+		return app.NewApiError(500, "couldn't get access token from github", &err)
 	}
 
 	ghUser, err := github.GetUserData(accessToken)
 	if err != nil {
-		return err
+		return app.NewApiError(500, "couldn't get user data from github using access token", &err)
 	}
 
 	var user *db.User
@@ -52,7 +53,7 @@ func HandleGitHubCallback(c *fiber.Ctx) error {
 
 	accessToken, refreshToken, err := jwt.GenerateBothTokens(user.ID)
 	if err != nil {
-		return err
+		return app.NewApiError(500, "couldn't generate jwt tokens", &err)
 	}
 
 	return RedirectWithTokens(c, accessToken, refreshToken)
