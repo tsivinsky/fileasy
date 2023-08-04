@@ -49,6 +49,10 @@ func main() {
 
 	app.Get("/api/auth/github", router.HandleGitHubLogin)
 	app.Get("/api/auth/github/callback", router.HandleGitHubCallback)
+
+	app.Get("/api/auth/yandex", router.HandleYandexLogin)
+	app.Get("/api/auth/yandex/callback", router.HandleYandexCallback)
+
 	app.Post("/api/auth/refresh", router.HandleGetNewAccessToken)
 
 	app.Get("/api/user", middleware.VerifyJWTToken, router.HandleGetUser)

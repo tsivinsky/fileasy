@@ -8,8 +8,10 @@ import (
 )
 
 type GitHubUser struct {
-	Email *string `json:"email"`
-	Login string  `json:"login"`
+	ID     int     `json:"id"`
+	Email  *string `json:"email"`
+	Login  string  `json:"login"`
+	Avatar *string `json:"avatar_url"`
 }
 
 func GetUserData(accessToken string) (*GitHubUser, error) {
